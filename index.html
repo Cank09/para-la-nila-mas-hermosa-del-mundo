@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Cuando...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: #fff0f8;
+            overflow-y: auto; /* Permitir scroll vertical en todo el cuerpo para móviles */
+            min-height: 100vh;
+            color: #5d1a47;
+        }
+
+        /* Pantalla de bienvenida */
+        #intro-page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ffc1e3 0%, #ff9ce4 100%);
+            background-image: 
+                radial-gradient(circle at 20% 80%, #ffd4e9 1px, transparent 1px),
+                radial-gradient(circle at 80% 20%, #ffd4e9 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, #ffd4e9 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .intro-button {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 22px 50px;
+            font-size: 26px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s;
+        }
+        .intro-button:hover { transform: scale(1.08); }
+
+        /* Modal de instrucciones y cartas */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto; /* Scroll en modales si el contenido es largo en móviles */
+            padding: 20px 0;
+        }
+        .modal-content {
+            background: #fff0f5;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 105, 180, 0.3);
+            animation: abrirCarta 0.6s ease-out;
+            position: relative;
+            border: 3px solid #ffb6c1;
+        }
+        @keyframes abrirCarta {
+            from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 32px;
+            color: #ff69b4;
+            cursor: pointer;
+        }
+        .continue-btn {
+            margin-top: 30px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s;
+        }
+        .continue-btn:hover { transform: translateY(-3px); }
+
+        /* Contenido de carta con scroll si es largo */
+        .carta-texto {
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ffb6c1;
+            border-radius: 15px;
+            background: #fff;
+            margin-top: 20px;
+        }
+
+        /* Página principal */
+        #main-page {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 20px;
+            text-align: center;
+            background: #fff5fb;
+        }
+        h1 {
+            font-size: 48px;
+            color: #ff1493;
+            margin-bottom: 60px;
+            text-shadow: 2px 2px 10px rgba(255,20,147,0.2);
+        }
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .section-button {
+            background: #ffe4f0;
+            border: none;
+            padding: 30px;
+            font-size: 26px;
+            font-weight: 600;
+            color: #c71585;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255,182,193,0.4);
+            transition: all 0.3s;
+        }
+        .section-button:hover {
+            transform: translateY(-10px) scale(1.05);
+            background: #ffbbe4;
+        }
+
+        /* Cartas dentro de los modales */
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .card {
+            background: white;
+            border: 2px solid #ffb6c1;
+            border-radius: 20px;
+            padding: 25px;
+            width: 260px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255,105,180,0.2);
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .card:hover { transform: translateY(-8px); }
+
+        /* Canciones */
+        .songs-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .songs-list li {
+            background: white;
+            border: 2px solid #ffb6c1;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 12px 0;
+            box-shadow: 0 5px 15px rgba(255,105,180,0.2);
+        }
+        .songs-list li a {
+            color: #ff69b4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .songs-list li a:hover {
+            text-decoration: underline;
+        }
+        .note {
+            font-size: 16px;
+            color: #c71585;
+            margin-bottom: 20px;
+        }
+
+        /* Corazones cayendo */
+        .emoji {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: caer linear;
+            will-change: transform; /* Optimización para animaciones suaves en móviles */
+        }
+        @keyframes caer {
+            from { transform: translateY(-100vh) rotate(0deg); }
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Ajustes para móviles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            .intro-button {
+                padding: 18px 40px;
+                font-size: 22px;
+            }
+            .section-button {
+                padding: 25px;
+                font-size: 22px;
+            }
+            .card {
+                width: 100%;
+                max-width: 300px;
+            }
+            .modal-content {
+                padding: 30px;
+            }
+            .carta-texto {
+                font-size: 16px;
+            }
+            .emoji {
+                font-size: 24px; /* Corazones un poco más pequeños en móviles para mejor rendimiento */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de bienvenida -->
+    <div id="intro-page">
+        <button class="intro-button" onclick="openInstructionsModal()">INSTRUCCIONES</button>
+    </div>
+
+    <!-- Modal de instrucciones -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('instructionsModal')">&times;</span>
+            <p style="font-size:20px; line-height:1.8;">
+                Esta página la hice con todo el cariño del mundo, mi amor, para los distintos momentos del día cuando te sientas triste, enojada, confundida. Cada uno de los apartados tiene 3 cartas, mi amor. Cada que te sientas así, abre cualquiera. Te amoooo con cariño, el niño que más te ama ♡
+            </p>
+            <button class="continue-btn" onclick="goToMainPage()">CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- Página principal -->
+    <div id="main-page">
+        <h1>PARA CUANDO...</h1>
+        <div class="sections">
+            <button class="section-button" onclick="openModal('tristeModal')">TRISTE</button>
+            <button class="section-button" onclick="openModal('enojadaModal')">ENOJADA</button>
+            <button class="section-button" onclick="openModal('felizModal')">FELIZ</button>
+            <button class="section-button" onclick="openModal('confundidaModal')">CONFUNDIDA</button>
+            <button class="section-button" onclick="openModal('extranesModal')">CUANDO ME EXTRAÑES</button>
+            <button class="section-button" onclick="openModal('cancionesModal')">CANCIONES QUE ME RECUERDAN A TI</button>
+        </div>
+    </div>
+
+    <!-- Modal para TRISTE -->
+    <div id="tristeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('tristeModal')">&times;</span>
+            <h2>TRISTE</h2>
+            <div class="cards">
+                <div class="card" onclick="openCartaModal('tristeCarta1')"><p>Carta 1</p></div>
+                <div class="card" onclick="openCartaModal('tristeCarta2')"><p>Carta 2</p></div>
+                <div class="card" onclick="openCartaModal('tristeCarta3')"><p>Carta 3</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada carta de TRISTE -->
+    <div id="tristeCarta1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('tristeCarta1')">&times;</span>
+            <div class="carta-texto">Mi niña, sé que no es fácil cuando nos sentimos tristes o desanimados, pero sabes una cosa, que no estás sola, mi amor, tú me tienes como tu apoyo emocional todo el tiempo, mi amor, eres fuerte, eres valiente, lo eres todo, mi amor, y aunque a veces el mundo parezca que se pone en tu contra, siempre tendrás a tu niño que te quiere con todo su ser, mi amor, si te sientes cansada, siempre estaré para que apoyes tu cabeza en mi hombro, cuando sientas que te hace falta ánimos, recuerda que tienes un valor que las palabras no pueden describir, eres tan perfecta y tan hermosa, mi amor.</div>
+        </div>
+    </div>
+    <div id="tristeCarta2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('tristeCarta2')">&times;</span>
+            <div class="carta-texto">Mi amor, es parte de la vida sentirnos tristes, amor, llorar no es algo malo, amor, siempre sirve para desahogarte en los momentos más difíciles, amor, y si te sirve de consuelo, quiero que sepas que eres mi chica ideal y siempre estoy para escucharte, aconsejarte y amarte, mi amor, en los momentos más difíciles soy tu ancla, mi amor, cuando sientas que te pierdes, estoy ahí para ser tu luz que te guíe, mi amor, cuando te falten fuerzas, te abrazaré y te besaré con todas, todas mis fuerzas, mi amor. TE AMO Y ESO JAMÁS CAMBIARÁ.</div>
+        </div>
+    </div>
+    <div id="tristeCarta3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('tristeCarta3')">&times;</span>
+            <div class="carta-texto">Mi amor, todos tenemos días difíciles, pero algo que me encanta de ti, mi amor, es que hasta en los días más difíciles siempre muestras esa gran sonrisa, mi amor, esa carisma que me tiene tan enamorado, quiero que sepas y recuerdes siempre que eres una mujer tan valiosa y tan querida, mi amor, no solo por mí, amor, tienes amigas que te quieren muchísimo, amor, tienes a tu mami, amor, a tu abue, amor, que te quieren con todo su corazón, porque cómo no quererte, mi amor, eres super mega hermosa, super linda, super educada, super inteligente y tan perfecta que cualquiera te puede amar sin problemas, amor, de verdad me siento el niño más afortunado de tenerte en mi vida, mi amor.</div>
+        </div>
+    </div>
+
+    <!-- Modal para ENOJADA -->
+    <div id="enojadaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('enojadaModal')">&times;</span>
+            <h2>ENOJADA</h2>
+            <div class="cards">
+                <div class="card" onclick="openCartaModal('enojadaCarta1')"><p>Carta 1</p></div>
+                <div class="card" onclick="openCartaModal('enojadaCarta2')"><p>Carta 2</p></div>
+                <div class="card" onclick="openCartaModal('enojadaCarta3')"><p>Carta 3</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada carta de ENOJADA -->
+    <div id="enojadaCarta1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('enojadaCarta1')">&times;</span>
+            <div class="carta-texto">Amor, casi siempre pareciera que las personas se ponen en tu contra solo para hacerte enojar o hacerte sentir frustrada o molesta, pero mi amor, no te dejes llevar por las actitudes, palabras de otros hagan hacerte sentir mal, amor, tú tienes un valor infinito, infinito y nadie jamás lo podrá comparar, quiero que recuerdes que siempre estaré ahí para ti, para que te desahogues, llora a mi lado, amor, grita si lo necesitas o simplemente quédate en silencio a mi lado, pero siempre estaré a tu lado, mi amor.</div>
+        </div>
+    </div>
+    <div id="enojadaCarta2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('enojadaCarta2')">&times;</span>
+            <div class="carta-texto">Mi amor, me duele verte enojada, en serio, es tan injusto que otras personas solo porque tuvieron un mal día se desquiten contigo, cómo me gustaría que otras personas vieran lo linda y educada que eres, que vieran el hermoso corazón que tienes, no tienes que pasar por esto sola, mi amor, puedes venir a mis brazos siempre cuando quieras, aun así sea lo que me tengas que contar, te escucho y te comprendo o si simplemente me quieres abrazar y respirar hondo en mis brazos, claro que sí, siempre estoy disponible para ti, mi amor pequeño.</div>
+        </div>
+    </div>
+    <div id="enojadaCarta3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('enojadaCarta3')">&times;</span>
+            <div class="carta-texto">Mi pequeña princesa, las personas son tan malas a veces que me gustaría poder agarrarte entre mis brazos y no dejar que nadie te lastime nunca jamás, tú no te mereces cargar con todo eso que las malas personas transmiten, mi amor, tú vales muchísimo, el enojo pasará, las personas cambiarán, pero si en algo estoy seguro que jamás se va a mover o cambiar es mi amor que siento por ti, recuerda que cuando el mundo te haga enojar siempre tendrás a un niño que se muere de amor por ti, mi amor, eres tan perfecta, tan linda que siempre, siempre, siempre estaré ahí para ti.</div>
+        </div>
+    </div>
+
+    <!-- Modal para FELIZ -->
+    <div id="felizModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('felizModal')">&times;</span>
+            <h2>FELIZ</h2>
+            <div class="cards">
+                <div class="card" onclick="openCartaModal('felizCarta1')"><p>Carta 1</p></div>
+                <div class="card" onclick="openCartaModal('felizCarta2')"><p>Carta 2</p></div>
+                <div class="card" onclick="openCartaModal('felizCarta3')"><p>Carta 3</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada carta de FELIZ -->
+    <div id="felizCarta1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('felizCarta1')">&times;</span>
+            <div class="carta-texto">Mi amooooor, cómo me encanta verte feliz, esa sonrisa que ilumina cualquier noche oscura, esos ojitos que brillan como estrellas, esa actitud que me transmite paz y amor, eres tan perfecta, mi amor, y cuando tú estás feliz mi corazón también lo está, quiero que recuerdes que te amo con todo mi ser, mi amor, con todo mi corazón y con todo mi alma, amor, porque el alma es algo que jamás se pierde y mis ganas de amarte jamás se perderán.</div>
+        </div>
+    </div>
+    <div id="felizCarta2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('felizCarta2')">&times;</span>
+            <div class="carta-texto">Hoy, mi amor, te veo tan feliz, y no imaginas cuánto me alegra el alma verte así. Cuando sonríes, el mundo se siente un poquito menos pesado, y cuando te ríes, siento que todo vale la pena. Tu felicidad es como un rayito de luz que llega directo a mi corazón. Mi amor, me encanta verte disfrutar, verte emocionarte, verte brillar. Eres tan hermosa cuando estás feliz… bueno, siempre lo eres, pero cuando estás así, pareces todavía más mágica. Ojalá pudiera guardar tu sonrisa en un frasquito para mirarla cada vez que la extraño. Mi princesa, gracias por dejarme estar contigo en estos momentos bonitos. Me encanta ser parte de tus alegrías, escucharte, mirarte y sentir cómo tu energía me envuelve. Contigo, hasta los días simples se sienten especiales.</div>
+        </div>
+    </div>
+    <div id="felizCarta3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('felizCarta3')">&times;</span>
+            <div class="carta-texto">Qué lindo es verte feliz. Cada vez que te veo así, con esa sonrisa tan tuya y esa mirada llena de luz, siento que el mundo se acomoda un poquito más. Tu felicidad tiene un efecto mágico en mí: me calma, me llena, me hace sentir que todo está bien. Mi amor, me encanta cuando estás así, disfrutando, riendo, brillando sin darte cuenta. Me encanta escucharte hablar cuando estás emocionada, ver cómo se te iluminan los ojos y cómo tu energía se siente tan bonita. Eres tan especial que incluso tu alegría cambia el ambiente a tu alrededor. Mi princesa, gracias por compartir conmigo estos momentos que te nacen del corazón. Me siento afortunado de poder acompañarte, de ser parte de tus días bonitos, de poder abrazarte mientras sonríes. Ojalá la vida te siga regalando motivos para estar así de feliz.</div>
+        </div>
+    </div>
+
+    <!-- Modal para CONFUNDIDA -->
+    <div id="confundidaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confundidaModal')">&times;</span>
+            <h2>CONFUNDIDA</h2>
+            <div class="cards">
+                <div class="card" onclick="openCartaModal('confundidaCarta1')"><p>Carta 1</p></div>
+                <div class="card" onclick="openCartaModal('confundidaCarta2')"><p>Carta 2</p></div>
+                <div class="card" onclick="openCartaModal('confundidaCarta3')"><p>Carta 3</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada carta de CONFUNDIDA -->
+    <div id="confundidaCarta1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confundidaCarta1')">&times;</span>
+            <div class="carta-texto">Sé que hoy te sientes confundida, y quiero que sepas que no pasa nada. Es normal tener días así, momentos en los que la cabeza se llena de preguntas y el corazón no sabe muy bien qué sentir. No tienes que tener todas las respuestas ahora mismo. No tienes que forzarte a entender todo de una vez. Mi amor, quiero que recuerdes algo importante: no estás sola. Puedes apoyarte en mí, puedes contarme lo que te pasa, o puedes quedarte en silencio si eso es lo que necesitas. Yo estoy aquí, contigo, sin exigirte nada, solo queriendo ayudarte a sentirte un poquito más tranquila.</div>
+        </div>
+    </div>
+    <div id="confundidaCarta2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confundidaCarta2')">&times;</span>
+            <div class="carta-texto">Amor, quiero que sepas que sentirse confundido no te hace ser menos, es todo lo contrario, siempre que te sientes confundida tu corazoncito no sabe qué hacer, pero eso nos hace ser humanos, siempre estoy para ti, mi amor, para darte consejos, abrazos o simplemente desahogarte si es todo lo que necesitas, mi amor, todo el mundo nos podemos sentir así y eso no nos hace menos valiosos y menos a ti, porque tú eres tan hermosa, tan perfecta, mi amor, que siempre, siempre, siempre serás la mejor niña del mundo mundial.</div>
+        </div>
+    </div>
+    <div id="confundidaCarta3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confundidaCarta3')">&times;</span>
+            <div class="carta-texto">Sé que estás pasando por un momento donde nada parece encajar y donde tus pensamientos se mezclan unos con otros. Quiero que sepas que no tienes que sentirte mal por eso. Todos tenemos días en los que la mente se vuelve un laberinto, y está bien no encontrar la salida de inmediato. Mi amor, no quiero que te presiones. No quiero que sientas que debes saberlo todo o decidirlo todo ya. Lo único que quiero es que recuerdes que estoy contigo. Que puedes apoyarte en mí, que puedes decirme lo que sientes o simplemente descansar en mi abrazo si las palabras no te salen.</div>
+        </div>
+    </div>
+
+    <!-- Modal para CUANDO ME EXTRAÑES -->
+    <div id="extranesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('extranesModal')">&times;</span>
+            <h2>CUANDO ME EXTRAÑES</h2>
+            <div class="cards">
+                <div class="card" onclick="openCartaModal('extranesCarta1')"><p>Carta 1</p></div>
+                <div class="card" onclick="openCartaModal('extranesCarta2')"><p>Carta 2</p></div>
+                <div class="card" onclick="openCartaModal('extranesCarta3')"><p>Carta 3</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada carta de CUANDO ME EXTRAÑES -->
+    <div id="extranesCarta1" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('extranesCarta1')">&times;</span>
+            <div class="carta-texto">Mi princesa, si hoy me extrañas aunque no esté contigo de forma física, siempre te estoy pensando, mi amor, y siempre, siempre que me necesites me puedes llamar, buscar o mandar un mensaje en el momento en el que tú quieras o lo necesites, yo para ti siempre estoy disponible, siempre, siempre, amor, cada que me extrañes recuerda cada sonrisa, cada abrazo que nos hemos dado juntos, cada risa que hemos pasado juntos. TE AMOOOOOOOO.</div>
+        </div>
+    </div>
+    <div id="extranesCarta2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('extranesCarta2')">&times;</span>
+            <div class="carta-texto">Si me extrañas, quiero que sepas que yo también siento ese vacío bonito que solo tú llenas. A veces estoy haciendo cualquier cosa y, de repente, me llega tu recuerdo… tu voz, tu risa, tu mirada. Y ahí mismo me doy cuenta de cuánto te necesito cerquita. Mi amor, ojalá pudiera aparecer frente a ti en este momento, abrazarte y decirte lo mucho que te he pensado. Me haces falta de una manera indescriptible, de esa que duele un poquito pero también te hace sentir vivo. Porque extrañarte significa que te amo con todo mi corazón, que te llevo en mi corazón cada segundo.</div>
+        </div>
+    </div>
+    <div id="extranesCarta3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('extranesCarta3')">&times;</span>
+            <div class="carta-texto">Amor, todo el tiempo te extraño, pero siempre piensa que jamás me voy a ir de tu lado, cuando me necesites ahí estaré y piensa que en algún momento nos veremos y podremos vivir más y más experiencias contigo, pero cuando estoy contigo las horas se pasan mil veces más rápido porque contigo todo es simplemente amor verdadero, todo lo que me haces sentir lo aprecio tanto, mi amor, que me quedo corto con palabras humanas para decirte lo que siento por ti, te amo muchísimo, mi amor, y si te sirve te mando MIL ABRAZOS Y MIL BESOS.</div>
+        </div>
+    </div>
+
+    <!-- Modal para CANCIONES QUE ME RECUERDAN A TI -->
+    <div id="cancionesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('cancionesModal')">&times;</span>
+            <h2>CANCIONES QUE ME RECUERDAN A TI</h2>
+            <p class="note">Solo haz click en cualquiera, amor ♡</p>
+            <ul class="songs-list">
+                <li><a href="https://open.spotify.com/intl-es/track/1iCfoPEd960ppyxSkU7ZUP?si=f95ae5345089401d" target="_blank">A ti Grupo marca registrada</a></li>
+                <li><a href="https://open.spotify.com/intl-es/track/3oJhbB8LrDTCNj35lwdtxf?si=285c9732d6034b19" target="_blank">MMXX's Virlan Garcia</a></li>
+                <li><a href="https://open.spotify.com/intl-es/track/4AYXjnxnA4Tsr8CAYuKQDo?si=d925f77efa9d4fcb" target="_blank">Gracias a ti DannyLux</a></li>
+                <li><a href="https://open.spotify.com/intl-es/track/3ou9rSNUQnE7XYmJkUUIOc?si=0cf01226f36e4e02" target="_blank">Green Eyes Coldplay</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function openInstructionsModal() {
+            document.getElementById('instructionsModal').style.display = 'flex';
+        }
+        function goToMainPage() {
+            document.getElementById('instructionsModal').style.display = 'none';
+            document.getElementById('intro-page').style.display = 'none';
+            document.getElementById('main-page').style.display = 'block';
+            startEmojiFall();
+        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function openCartaModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Corazones cayendo ♡
+        function startEmojiFall() {
+            const corazones = ['❤️','🧡','💛','💚','💙','💜','🩷','🤍','💖','💞','💕','💗'];
+            setInterval(() => {
+                const c = document.createElement('div');
+                c.classList.add('emoji');
+                c.textContent = corazones[Math.floor(Math.random()*corazones.length)];
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.animationDuration = Math.random() * 4 + 4 + 's';
+                document.body.appendChild(c);
+                c.addEventListener('animationend', () => c.remove());
+            }, 250);
+        }
+    </script>
+</body>
+</html>
